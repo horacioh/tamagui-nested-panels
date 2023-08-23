@@ -1,3 +1,10 @@
+# Tamagui Nested panels issue reproduction
+
+See the code in the [panelsss component](./packages/ui/src/panelsss.tsx)
+
+https://github.com/horacioh/tamagui-nested-panels/assets/725120/7374329c-ac51-4d3a-bbf5-67e5cc242071
+
+---
 # Tamagui + Solito + Next + Expo Monorepo
 
 ```sh
