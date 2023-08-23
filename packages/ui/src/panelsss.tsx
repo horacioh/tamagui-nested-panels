@@ -1,119 +1,49 @@
+import { X, Check as CheckIcon } from '@tamagui/lucide-icons'
 import { useState } from 'react'
 import {
-  Popover,
-  Dialog,
-  Select,
   Button,
-  YStack,
-  SizableText,
-  XStack,
-  Label,
-  Adapt,
+  Checkbox,
+  CheckboxProps,
+  Dialog,
+  DialogProps,
   Fieldset,
   Input,
-  TooltipSimple,
+  Label,
   Paragraph,
+  Popover,
+  SizableText,
+  SizeTokens,
+  TooltipSimple,
   Unspaced,
-  Sheet,
+  XStack,
+  YStack,
 } from 'tamagui'
-import { X } from '@tamagui/lucide-icons'
 import { SelectDemoItem } from './select-demo'
 
 export function Panelsss() {
-  const [dialogOpen, setDialogOpen] = useState(false)
+  const [withKeepChildrenMounted, setKeepChildrenMounted] = useState(true)
+  const popoverState = usePopoverState(false)
+  const dialogState = usePopoverState(false)
   return (
-    <Popover size="$5" allowFlip>
-      <Popover.Trigger asChild>
-        <Button>Open Popover</Button>
-      </Popover.Trigger>
+    <>
+      <CheckboxWithLabel
+        size="$3"
+        defaultChecked={withKeepChildrenMounted}
+        handleChange={(val) => setKeepChildrenMounted(val)}
+        label="toggle keepChildrenMounted"
+      />
 
-      <Adapt when="sm" platform="touch">
-        <Popover.Sheet modal dismissOnSnapToBottom>
-          <Popover.Sheet.Frame padding="$4">
-            <Adapt.Contents />
-          </Popover.Sheet.Frame>
-          <Popover.Sheet.Overlay
-            animation="lazy"
-            enterStyle={{ opacity: 0 }}
-            exitStyle={{ opacity: 0 }}
-          />
-        </Popover.Sheet>
-      </Adapt>
+      <Popover size="$5" allowFlip {...popoverState} keepChildrenMounted={withKeepChildrenMounted}>
+        <Popover.Trigger asChild>
+          <Button>Open Popover</Button>
+        </Popover.Trigger>
 
-      <Popover.Content
-        borderWidth={1}
-        borderColor="$borderColor"
-        enterStyle={{ y: -10, opacity: 0 }}
-        exitStyle={{ y: -10, opacity: 0 }}
-        elevate
-        animation={[
-          'quick',
-          {
-            opacity: {
-              overshootClamping: true,
-            },
-          },
-        ]}
-      >
-        <Popover.Arrow borderWidth={1} borderColor="$borderColor" />
-
-        <YStack space="$3">
-          <SizableText size="$2">Some content...</SizableText>
-          <DialogInstance />
-
-          <Popover.Close asChild>
-            <Button
-              size="$3"
-              onPress={() => {
-                /* Custom code goes here, does not interfere with popover closure */
-              }}
-            >
-              Submit
-            </Button>
-          </Popover.Close>
-        </YStack>
-      </Popover.Content>
-    </Popover>
-  )
-}
-
-function DialogInstance() {
-  const [open, setOpen] = useState(false)
-
-  return (
-    <Dialog
-      modal
-      onOpenChange={(open) => {
-        setOpen(open)
-      }}
-    >
-      <Dialog.Trigger asChild>
-        <Button>Show Dialog</Button>
-      </Dialog.Trigger>
-
-      <Adapt when="sm" platform="touch">
-        <Sheet zIndex={200000} modal dismissOnSnapToBottom>
-          <Sheet.Frame padding="$4" gap>
-            <Adapt.Contents />
-          </Sheet.Frame>
-          <Sheet.Overlay animation="lazy" enterStyle={{ opacity: 0 }} exitStyle={{ opacity: 0 }} />
-        </Sheet>
-      </Adapt>
-
-      <Dialog.Portal>
-        <Dialog.Overlay
-          key="overlay"
-          animation="quick"
-          opacity={0.5}
-          enterStyle={{ opacity: 0 }}
-          exitStyle={{ opacity: 0 }}
-        />
-
-        <Dialog.Content
-          bordered
+        <Popover.Content
+          borderWidth={1}
+          borderColor="$borderColor"
+          enterStyle={{ y: -10, opacity: 0 }}
+          exitStyle={{ y: -10, opacity: 0 }}
           elevate
-          key="content"
-          animateOnly={['transform', 'opacity']}
           animation={[
             'quick',
             {
@@ -122,10 +52,53 @@ function DialogInstance() {
               },
             },
           ]}
-          enterStyle={{ x: 0, y: -20, opacity: 0, scale: 0.9 }}
-          exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
-          gap
         >
+          <Popover.Arrow borderWidth={1} borderColor="$borderColor" />
+
+          <YStack space="$3">
+            <SizableText size="$2">Some content...</SizableText>
+            <DialogInstance
+              {...dialogState}
+              closePopover={() => popoverState.onOpenChange(false)}
+            />
+
+            <Popover.Close asChild>
+              <Button
+                size="$3"
+                onPress={() => {
+                  /* Custom code goes here, does not interfere with popover closure */
+                }}
+              >
+                Submit
+              </Button>
+            </Popover.Close>
+          </YStack>
+        </Popover.Content>
+      </Popover>
+    </>
+  )
+}
+
+function DialogInstance(props: DialogProps & { closePopover: () => void }) {
+  return (
+    <Dialog
+      modal
+      {...props}
+      onOpenChange={(open) => {
+        props.onOpenChange?.(open)
+        if (open) {
+          props.closePopover()
+        }
+      }}
+    >
+      <Dialog.Trigger asChild>
+        <Button>Show Dialog</Button>
+      </Dialog.Trigger>
+
+      <Dialog.Portal>
+        <Dialog.Overlay key="overlay" opacity={0.5} />
+
+        <Dialog.Content bordered elevate key="content" gap>
           <Dialog.Title>Edit profile</Dialog.Title>
           <Dialog.Description>
             Make changes to your profile here. Click save when you're done.
@@ -146,8 +119,6 @@ function DialogInstance() {
           </Fieldset>
 
           <XStack alignSelf="flex-end" gap>
-            <DialogInstance />
-
             <Dialog.Close displayWhenAdapted asChild>
               <Button theme="alt1" aria-label="Close">
                 Save changes
@@ -163,5 +134,41 @@ function DialogInstance() {
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog>
+  )
+}
+
+export const usePopoverState = (defaultOpen?: boolean) => {
+  const [open, onOpenChange] = useState<boolean>(!!defaultOpen)
+  return {
+    open,
+    onOpenChange,
+    defaultOpen: !!defaultOpen,
+  }
+}
+
+export function CheckboxWithLabel(props: {
+  size: SizeTokens
+  defaultChecked?: boolean
+  label: string
+  handleChange: CheckboxProps['onCheckedChange']
+}) {
+  const id = `checkbox-${props.size.toString().slice(1)}`
+  return (
+    <XStack width={300} alignItems="center" space="$4">
+      <Checkbox
+        id={id}
+        size={props.size}
+        defaultChecked={props.defaultChecked}
+        onCheckedChange={props.handleChange}
+      >
+        <Checkbox.Indicator>
+          <CheckIcon />
+        </Checkbox.Indicator>
+      </Checkbox>
+
+      <Label size={props.size} htmlFor={id}>
+        {props.label}
+      </Label>
+    </XStack>
   )
 }

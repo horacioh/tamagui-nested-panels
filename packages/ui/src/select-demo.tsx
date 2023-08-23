@@ -10,7 +10,6 @@ import {
   YStack,
   getFontSize,
 } from 'tamagui'
-import { LinearGradient } from 'tamagui/linear-gradient'
 
 export function SelectDemo() {
   return (
@@ -41,31 +40,6 @@ export function SelectDemoItem(props: SelectProps) {
         <Select.Value placeholder="Something" />
       </Select.Trigger>
 
-      <Adapt when="sm" platform="touch">
-        <Sheet
-          native={!!props.native}
-          modal
-          dismissOnSnapToBottom
-          animationConfig={{
-            type: 'spring',
-            damping: 20,
-            mass: 1.2,
-            stiffness: 250,
-          }}
-        >
-          <Sheet.Frame>
-            <Sheet.ScrollView>
-              <Adapt.Contents />
-            </Sheet.ScrollView>
-          </Sheet.Frame>
-          <Sheet.Overlay
-            animation="lazy"
-            enterStyle={{ opacity: 0 }}
-            exitStyle={{ opacity: 0 }}
-          />
-        </Sheet>
-      </Adapt>
-
       <Select.Content zIndex={200000}>
         <Select.ScrollUpButton
           alignItems="center"
@@ -77,13 +51,6 @@ export function SelectDemoItem(props: SelectProps) {
           <YStack zIndex={10}>
             <ChevronUp size={20} />
           </YStack>
-          <LinearGradient
-            start={[0, 0]}
-            end={[0, 1]}
-            fullscreen
-            colors={['$background', '$backgroundTransparent']}
-            borderRadius="$4"
-          />
         </Select.ScrollUpButton>
 
         <Select.Viewport
@@ -143,13 +110,6 @@ export function SelectDemoItem(props: SelectProps) {
           <YStack zIndex={10}>
             <ChevronDown size={20} />
           </YStack>
-          <LinearGradient
-            start={[0, 0]}
-            end={[0, 1]}
-            fullscreen
-            colors={['$backgroundTransparent', '$background']}
-            borderRadius="$4"
-          />
         </Select.ScrollDownButton>
       </Select.Content>
     </Select>
